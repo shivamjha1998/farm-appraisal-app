@@ -31,5 +31,3 @@ web-build/
 # Backend Specific
 backend/venv
 backend/.venv
-
-.env
