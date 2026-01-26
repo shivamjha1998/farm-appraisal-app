@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+httpx
+python-multipart
+google-generativeai
+playwright
+beautifulsoup4
+supabase
+python-dotenv
