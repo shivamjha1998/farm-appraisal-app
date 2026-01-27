@@ -10,7 +10,8 @@ import MultiSlider from '@ptomasroos/react-native-multi-slider';
 
 // Replace with your computer's IP if running on Android device/emulator (e.g., http://192.168.1.5:8000)
 // For iOS Simulator, localhost usually works.
-const API_URL = Platform.OS === 'android' ? 'http://10.0.2.2:8000' : 'http://localhost:8000';
+// Using detected local IP for physical device connectivity
+const API_URL = 'http://192.168.123.3:8000';
 
 interface MarketItem {
   title: string;
