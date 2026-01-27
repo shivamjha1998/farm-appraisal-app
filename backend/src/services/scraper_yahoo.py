@@ -1,7 +1,7 @@
 import httpx
 from bs4 import BeautifulSoup
 from typing import List, Dict, Any
-import urllib.parse
+
 
 class YahooScraperService:
     def __init__(self):
@@ -11,8 +11,15 @@ class YahooScraperService:
         # If it's a different Yahoo Auction, we'd adjust.
         self.base_url = "https://auctions.yahoo.co.jp/search/search"
 
-    async def search_equipment(self, make: str, model: str, min_price: int = None) -> List[Dict[str, Any]]:
-        query = f"{make} {model}".strip()
+    async def search_equipment(self, make: str, model: str, equipment_type: str = "") -> List[Dict[str, Any]]:
+        # Construct query with make, optional type, and model
+        query_parts = [make]
+        if equipment_type:
+            query_parts.append(equipment_type)
+        query_parts.append(model)
+        
+        query = " ".join(query_parts).strip()
+        
         params = {
             "p": query,
             # "va": query, # specific to some yahoo searches, might be causing issues if complex
@@ -20,8 +27,6 @@ class YahooScraperService:
             "b": 1,     
             "n": 20     
         }
-        if min_price:
-            params["aucminprice"] = min_price
         
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"

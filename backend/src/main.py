@@ -96,29 +96,42 @@ async def analyze_equipment(file: UploadFile = File(...)):
                     model_clean = model.lower().replace(" ", "").replace("-", "")
                     model_loose = model.lower()
                     
-                    keywords_make_type = [k.lower() for k in [make_ja, make, type_ja, analysis_result.get("type")] if k]
+                    # Extract numeric part for fallback (e.g., "GL21" -> "21")
+                    import re
+                    model_numbers = re.findall(r'\d+', model)
+                    model_numeric = "".join(model_numbers) if model_numbers else ""
                     
-                    print(f"Filtering with: Model='{model}', Keywords={keywords_make_type}")
+                    # Keywords
+                    make_keywords = [k.lower() for k in [make_ja, make] if k]
+                    type_keywords = [k.lower() for k in [type_ja, analysis_result.get("type")] if k]
+                    
+                    print(f"Filtering with: Model='{model}' (Num: '{model_numeric}'), Make={make_keywords}, Type={type_keywords}")
 
                     for item in items:
                         title_lower = item["title"].lower()
                         title_clean = title_lower.replace(" ", "").replace("-", "")
                         
-                        has_make_type = any(k in title_lower for k in keywords_make_type)
+                        # Check 1: Brand (Make) - STRICT
+                        has_make = any(k in title_lower for k in make_keywords)
                         
-                        # Check 1: Strict Model Match
-                        has_model = (model_loose in title_lower) or (model_clean in title_clean)
+                        # Check 2: Type - STRICT
+                        has_type = any(k in title_lower for k in type_keywords)
                         
-                        # Check 2: High Value Alternative (Vehicle/Equipment fallback)
-                        # If model doesn't match, but it's specific branding/type and expensive, include it.
-                        is_high_value = item["price"] > 100000
+                        # Check 3: Model - FALBACK ALLOWED
+                        # Full match
+                        has_full_model = (model_loose in title_lower) or (model_clean in title_clean)
+                        # Numeric fallback (only if numbers exist and are specific enough, e.g. length > 1)
+                        has_numeric_model = False
+                        if model_numeric and len(model_numeric) > 1:
+                             # Ensure the number exists as a distinct token or part of a token? 
+                             # Simple check: is the number sequence in the string?
+                             has_numeric_model = model_numeric in title_clean
                         
-                        if has_make_type:
-                            if has_model:
-                                valid_items.append(item)
-                            elif is_high_value:
-                                # Fuzzy match: Matches Make/Type and is expensive (likely a tractor, not a manual)
-                                valid_items.append(item)
+                        has_model_match = has_full_model or has_numeric_model
+                        
+                        # Combined Logic: Must have Brand AND Type AND (Model or Numbers)
+                        if has_make and has_type and has_model_match:
+                             valid_items.append(item)
                             
                     print(f"Filtered {len(items)} -> {len(valid_items)}")
                     return valid_items
@@ -127,7 +140,7 @@ async def analyze_equipment(file: UploadFile = File(...)):
                 if make_ja and type_ja:
                     search_query = f"{make_ja} {model} {type_ja}"
                     print(f"Strategy 1: Searching '{search_query}'")
-                    raw_data = await scraper_service.search_equipment(make_ja + " " + type_ja, model)
+                    raw_data = await scraper_service.search_equipment(make_ja, model, type_ja)
                     market_data = filter_valid_results(raw_data, make_ja, make, type_ja, model)
 
                 # Strategy 2: Search with Japanese Make + Model
@@ -149,7 +162,7 @@ async def analyze_equipment(file: UploadFile = File(...)):
                 if not market_data and type_ja:
                     search_query = f"{type_ja} {model}"
                     print(f"Strategy 4: Searching fallback '{search_query}'")
-                    raw_data = await scraper_service.search_equipment(type_ja, model)
+                    raw_data = await scraper_service.search_equipment("", model, type_ja)
                     market_data = filter_valid_results(raw_data, make_ja, make, type_ja, model)
 
                 # Strategy 5: Broad Model Only
