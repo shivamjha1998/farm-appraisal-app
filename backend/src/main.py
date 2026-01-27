@@ -89,52 +89,10 @@ async def analyze_equipment(file: UploadFile = File(...)):
                 
                 # Helper function to filter results
                 def filter_valid_results(items, make_ja, make, type_ja, model):
-                    if not items: return []
-                    valid_items = []
-                    
-                    # Normalize model for comparison
-                    model_clean = model.lower().replace(" ", "").replace("-", "")
-                    model_loose = model.lower()
-                    
-                    # Extract numeric part for fallback (e.g., "GL21" -> "21")
-                    import re
-                    model_numbers = re.findall(r'\d+', model)
-                    model_numeric = "".join(model_numbers) if model_numbers else ""
-                    
-                    # Keywords
-                    make_keywords = [k.lower() for k in [make_ja, make] if k]
-                    type_keywords = [k.lower() for k in [type_ja, analysis_result.get("type")] if k]
-                    
-                    print(f"Filtering with: Model='{model}' (Num: '{model_numeric}'), Make={make_keywords}, Type={type_keywords}")
-
-                    for item in items:
-                        title_lower = item["title"].lower()
-                        title_clean = title_lower.replace(" ", "").replace("-", "")
-                        
-                        # Check 1: Brand (Make) - STRICT
-                        has_make = any(k in title_lower for k in make_keywords)
-                        
-                        # Check 2: Type - STRICT
-                        has_type = any(k in title_lower for k in type_keywords)
-                        
-                        # Check 3: Model - FALBACK ALLOWED
-                        # Full match
-                        has_full_model = (model_loose in title_lower) or (model_clean in title_clean)
-                        # Numeric fallback (only if numbers exist and are specific enough, e.g. length > 1)
-                        has_numeric_model = False
-                        if model_numeric and len(model_numeric) > 1:
-                             # Ensure the number exists as a distinct token or part of a token? 
-                             # Simple check: is the number sequence in the string?
-                             has_numeric_model = model_numeric in title_clean
-                        
-                        has_model_match = has_full_model or has_numeric_model
-                        
-                        # Combined Logic: Must have Brand AND Type AND (Model or Numbers)
-                        if has_make and has_type and has_model_match:
-                             valid_items.append(item)
-                            
-                    print(f"Filtered {len(items)} -> {len(valid_items)}")
-                    return valid_items
+                    # Relaxed Filter: Return everything found by the scraper's query.
+                    # The user wants to see all results and filter manually by price on the frontend.
+                    print(f"Returning {len(items)} items without strict filtering.")
+                    return items
 
                 # Strategy 1: Search with Japanese Make + Model + Type (Most Specific - User Requested)
                 if make_ja and type_ja:

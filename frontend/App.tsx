@@ -4,6 +4,9 @@ import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
 import axios from 'axios';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import MultiSlider from '@ptomasroos/react-native-multi-slider';
+
+
 
 // Replace with your computer's IP if running on Android device/emulator (e.g., http://192.168.1.5:8000)
 // For iOS Simulator, localhost usually works.
@@ -40,6 +43,11 @@ export default function App() {
   const [image, setImage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [maxPriceFilter, setMaxPriceFilter] = useState<number>(10000000); // Default high
+  const [currentMaxPrice, setCurrentMaxPrice] = useState<number>(10000000); // For slider UI
+  const [currentMinPrice, setCurrentMinPrice] = useState<number>(0); // Min Price Slider
+
+
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -90,7 +98,25 @@ export default function App() {
       const response = await axios.post<AnalysisResult>(`${API_URL}/analyze`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      setResult(response.data);
+      const data = response.data;
+      setResult(data);
+
+      // Initialize slider with max price found
+      if (data.market_data && data.market_data.length > 0) {
+        const prices = data.market_data.map(item => item.price);
+        const maxP = Math.max(...prices);
+        const minP = Math.min(...prices);
+
+        // Set slider range max slightly higher than max price for headroom
+        const sliderMax = Math.ceil(maxP / 10000) * 10000;
+        setMaxPriceFilter(sliderMax);
+
+        // Initialize knobs to existing data bounds
+        setCurrentMaxPrice(maxP);
+        setCurrentMinPrice(minP);
+      }
+
+
     } catch (error: any) {
       console.error('Error:', error);
       let errorMsg = 'Failed to analyze image.';
@@ -107,7 +133,33 @@ export default function App() {
     }
   };
 
+  const getFilteredItems = () => {
+    if (!result || !result.market_data) return [];
+    return result.market_data.filter(
+      item => item.price >= currentMinPrice && item.price <= currentMaxPrice
+    );
+  };
+
+  const calculateStats = (items: MarketItem[]) => {
+    if (!items || items.length === 0) return null;
+    const prices = items.map(i => i.price).sort((a, b) => a - b);
+    const min = prices[0];
+    const max = prices[prices.length - 1];
+    const sum = prices.reduce((a, b) => a + b, 0);
+    const avg = sum / prices.length;
+
+    // Median
+    const mid = Math.floor(prices.length / 2);
+    const median = prices.length % 2 !== 0 ? prices[mid] : (prices[mid - 1] + prices[mid]) / 2;
+
+    return { min, max, avg, median, currency: 'JPY' };
+  };
+
+  const filteredItems = getFilteredItems();
+  const dynamicStats = calculateStats(filteredItems);
+
   return (
+
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Ionicons name="leaf" size={24} color="#2E7D32" />
@@ -188,26 +240,74 @@ export default function App() {
             </View>
 
             {/* Market Value Card */}
-            {result.price_stats && (
+            {dynamicStats && (
               <View style={styles.card}>
                 <View style={styles.cardHeader}>
                   <Ionicons name="stats-chart" size={20} color="#2E7D32" />
-                  <Text style={styles.cardTitle}>Market Estimate</Text>
+                  <Text style={styles.cardTitle}>Market Estimate (Filtered)</Text>
                 </View>
                 <View style={styles.priceContainer}>
                   <View style={styles.priceBox}>
                     <Text style={styles.priceLabel}>Min</Text>
-                    <Text style={styles.priceValueSmall}>¥{result.price_stats.min.toLocaleString()}</Text>
+                    <Text style={styles.priceValueSmall}>¥{dynamicStats.min.toLocaleString()}</Text>
                   </View>
                   <View style={styles.priceBoxHighlighted}>
                     <Text style={styles.priceLabelLight}>Median</Text>
-                    <Text style={styles.priceValueLarge}>¥{Math.round(result.price_stats.median).toLocaleString()}</Text>
+                    <Text style={styles.priceValueLarge}>¥{Math.round(dynamicStats.median).toLocaleString()}</Text>
                   </View>
                   <View style={styles.priceBox}>
                     <Text style={styles.priceLabel}>Max</Text>
-                    <Text style={styles.priceValueSmall}>¥{result.price_stats.max.toLocaleString()}</Text>
+                    <Text style={styles.priceValueSmall}>¥{dynamicStats.max.toLocaleString()}</Text>
                   </View>
                 </View>
+              </View>
+            )}
+
+
+            {/* Listings Card */}
+            {result.market_data && result.market_data.length > 0 && (
+              <View style={styles.card}>
+                <View style={styles.cardHeader}>
+                  <Ionicons name="filter" size={20} color="#2E7D32" />
+                  <Text style={styles.cardTitle}>Filter by Price</Text>
+                </View>
+                <View style={styles.filterContainer}>
+                  <View style={styles.row}>
+                    <Text style={styles.filterLabel}>¥{currentMinPrice.toLocaleString()}</Text>
+                    <Text style={styles.filterLabel}>¥{currentMaxPrice.toLocaleString()}</Text>
+                  </View>
+                  <View style={{ alignItems: 'center' }}>
+                    <MultiSlider
+                      values={[currentMinPrice, currentMaxPrice]}
+                      min={0}
+                      max={maxPriceFilter}
+                      step={1000}
+                      sliderLength={280}
+                      onValuesChange={(values) => {
+                        setCurrentMinPrice(values[0]);
+                        setCurrentMaxPrice(values[1]);
+                      }}
+                      selectedStyle={{
+                        backgroundColor: '#2E7D32',
+                      }}
+                      unselectedStyle={{
+                        backgroundColor: '#e0e0e0',
+                      }}
+                      containerStyle={{
+                        height: 40,
+                      }}
+                      trackStyle={{
+                        height: 4,
+                      }}
+                      markerStyle={{
+                        backgroundColor: '#2E7D32',
+                        height: 20,
+                        width: 20,
+                      }}
+                    />
+                  </View>
+                </View>
+
               </View>
             )}
 
@@ -218,26 +318,28 @@ export default function App() {
                   <Ionicons name="list" size={20} color="#2E7D32" />
                   <Text style={styles.cardTitle}>Recent Listings (Yahoo Japan)</Text>
                 </View>
-                {result.market_data.slice(0, 5).map((item, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={styles.listingItem}
-                    onPress={() => {
-                      if (item.url) {
-                        Linking.openURL(item.url).catch(err => Alert.alert("Error", "Could not open link"));
-                      }
-                    }}
-                  >
-                    <View style={{ flex: 1, paddingRight: 10 }}>
-                      <Text numberOfLines={2} style={styles.listingTitle}>{item.title}</Text>
-                      <View style={styles.sourceRow}>
-                        <Ionicons name="open-outline" size={12} color="#999" />
-                        <Text style={styles.listingSource}>View on Yahoo Auctions</Text>
+                {filteredItems
+                  .slice(0, 100) // Show more items now that we can filter
+                  .map((item, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={styles.listingItem}
+                      onPress={() => {
+                        if (item.url) {
+                          Linking.openURL(item.url).catch(err => Alert.alert("Error", "Could not open link"));
+                        }
+                      }}
+                    >
+                      <View style={{ flex: 1, paddingRight: 10 }}>
+                        <Text numberOfLines={2} style={styles.listingTitle}>{item.title}</Text>
+                        <View style={styles.sourceRow}>
+                          <Ionicons name="open-outline" size={12} color="#999" />
+                          <Text style={styles.listingSource}>View on Yahoo Auctions</Text>
+                        </View>
                       </View>
-                    </View>
-                    <Text style={styles.listingPrice}>¥{item.price.toLocaleString()}</Text>
-                  </TouchableOpacity>
-                ))}
+                      <Text style={styles.listingPrice}>¥{item.price.toLocaleString()}</Text>
+                    </TouchableOpacity>
+                  ))}
               </View>
             )}
 
@@ -480,5 +582,15 @@ const styles = StyleSheet.create({
     color: '#666',
     fontSize: 16,
     fontWeight: '600',
-  }
+  },
+  filterContainer: {
+    paddingVertical: 10,
+  },
+  filterLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 5,
+  },
+
 });
