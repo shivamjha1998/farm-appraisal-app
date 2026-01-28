@@ -1,19 +1,30 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { AnalysisResult } from '../types';
 
 interface IdentificationCardProps {
     result: AnalysisResult;
+    onEdit?: () => void; // Optional prop
 }
 
-export const IdentificationCard: React.FC<IdentificationCardProps> = ({ result }) => {
+export const IdentificationCard: React.FC<IdentificationCardProps> = ({ result, onEdit }) => {
     return (
         <View style={styles.card}>
             <View style={styles.cardHeader}>
-                <MaterialCommunityIcons name="tractor" size={20} color="#2E7D32" />
-                <Text style={styles.cardTitle}>Identification</Text>
+                <View style={styles.headerLeft}>
+                    <MaterialCommunityIcons name="tractor" size={20} color="#2E7D32" />
+                    <Text style={styles.cardTitle}>Identification</Text>
+                </View>
+
+                {onEdit && (
+                    <TouchableOpacity onPress={onEdit} style={styles.editButton}>
+                        <MaterialCommunityIcons name="pencil" size={16} color="#2E7D32" />
+                        <Text style={styles.editText}>Edit</Text>
+                    </TouchableOpacity>
+                )}
             </View>
+
             <View style={styles.cardContent}>
                 <View style={styles.row}>
                     <Text style={styles.label}>Make:</Text>
@@ -31,11 +42,15 @@ export const IdentificationCard: React.FC<IdentificationCardProps> = ({ result }
                     <Text style={styles.label}>Year:</Text>
                     <Text style={styles.value}>{result.year_range}</Text>
                 </View>
-                <View style={styles.confidenceBadge}>
-                    <Text style={styles.confidenceText}>
-                        {Math.round(result.confidence * 100)}% Match
-                    </Text>
-                </View>
+
+                {/* Only show confidence if it's not a manual correction (100%) */}
+                {result.confidence !== 1.1 && (
+                    <View style={styles.confidenceBadge}>
+                        <Text style={styles.confidenceText}>
+                            {Math.round(result.confidence * 100)}% Match
+                        </Text>
+                    </View>
+                )}
             </View>
         </View>
     );
@@ -56,16 +71,35 @@ const styles = StyleSheet.create({
     cardHeader: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'space-between', // Push Edit button to right
         marginBottom: 12,
         borderBottomWidth: 1,
         borderBottomColor: '#f0f0f0',
         paddingBottom: 8,
+    },
+    headerLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     cardTitle: {
         fontSize: 16,
         fontWeight: 'bold',
         marginLeft: 8,
         color: '#333',
+    },
+    editButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#F1F8E9',
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 15,
+    },
+    editText: {
+        color: '#2E7D32',
+        fontSize: 12,
+        fontWeight: '600',
+        marginLeft: 4,
     },
     cardContent: {
         gap: 8,

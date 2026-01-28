@@ -16,11 +16,13 @@ import { FilterCard } from './components/FilterCard';
 import { ListingsCard } from './components/ListingsCard';
 import { saveToHistory, getHistory } from './services/storage';
 import { HistoryModal } from './components/HistoryModal';
+import { EditDetailsModal } from './components/EditDetailsModal';
 
 export default function App() {
   const [image, setImage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [editModalVisible, setEditModalVisible] = useState(false);
 
   // Filtering States
   const [maxPriceFilter, setMaxPriceFilter] = useState<number>(10000000);
@@ -162,6 +164,43 @@ export default function App() {
   const filteredItems = getFilteredItems();
   const dynamicStats = calculateStats(filteredItems);
 
+  const handleManualSearch = async (make: string, model: string, type: string, year: string) => {
+    setLoading(true);
+    // Don't clear result immediately so we don't flash empty screen, 
+    // but maybe good to indicate loading
+
+    try {
+      const response = await axios.post<AnalysisResult>(`${API_URL}/search`, {
+        make,
+        model,
+        type,
+        year
+      });
+
+      const data = response.data;
+      setResult(data);
+
+      // Update Filter logic as usual
+      if (data.market_data && data.market_data.length > 0) {
+        const prices = data.market_data.map(item => item.price);
+        const maxP = Math.max(...prices);
+        const minP = Math.min(...prices);
+        const sliderMax = Math.ceil(maxP / 10000) * 10000;
+        setMaxPriceFilter(sliderMax);
+        setCurrentMaxPrice(maxP);
+        setCurrentMinPrice(minP);
+      } else {
+        Alert.alert("No Results", "Could not find listings for this model.");
+      }
+
+    } catch (error: any) {
+      console.error('Search Error:', error);
+      Alert.alert('Error', 'Failed to search for equipment.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Header onHistoryPress={() => setHistoryModalVisible(true)} />
@@ -171,6 +210,16 @@ export default function App() {
         onClose={() => setHistoryModalVisible(false)}
         history={history}
         onSelectHistoryItem={handleHistorySelection}
+      />
+
+      <EditDetailsModal
+        visible={editModalVisible}
+        onClose={() => setEditModalVisible(false)}
+        onSubmit={handleManualSearch}
+        initialMake={result?.make || ''}
+        initialModel={result?.model || ''}
+        initialType={result?.type || ''}
+        initialYear={result?.year_range || ''}
       />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -195,7 +244,7 @@ export default function App() {
 
         {result && (
           <View style={styles.resultContainer}>
-            <IdentificationCard result={result} />
+            <IdentificationCard result={result} onEdit={() => setEditModalVisible(true)} />
 
             {dynamicStats && <MarketValueCard stats={dynamicStats} />}
 
