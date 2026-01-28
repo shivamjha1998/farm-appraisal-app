@@ -24,3 +24,10 @@ export interface AnalysisResult {
     price_stats?: PriceStats;
     market_data?: MarketItem[];
 }
+
+export interface HistoryItem {
+    id: string;
+    timestamp: number;
+    imageUri: string;
+    result: AnalysisResult;
+}

@@ -12,7 +12,7 @@ export const MarketValueCard: React.FC<MarketValueCardProps> = ({ stats }) => {
         <View style={styles.card}>
             <View style={styles.cardHeader}>
                 <Ionicons name="stats-chart" size={20} color="#2E7D32" />
-                <Text style={styles.cardTitle}>Market Estimate (Filtered)</Text>
+                <Text style={styles.cardTitle}>Market Estimate</Text>
             </View>
             <View style={styles.priceContainer}>
                 <View style={styles.priceBox}>

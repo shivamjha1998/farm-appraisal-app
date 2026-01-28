@@ -1,12 +1,12 @@
+// frontend/App.tsx
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, Text, ScrollView, Alert, Platform, SafeAreaView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-// Imports from our new modular structure
 import { API_URL } from './constants';
-import { MarketItem, AnalysisResult } from './types';
+import { MarketItem, AnalysisResult, HistoryItem } from './types';
 import { Header } from './components/Header';
 import { PlaceholderView } from './components/PlaceholderView';
 import { ImagePreview } from './components/ImagePreview';
@@ -14,14 +14,32 @@ import { IdentificationCard } from './components/IdentificationCard';
 import { MarketValueCard } from './components/MarketValueCard';
 import { FilterCard } from './components/FilterCard';
 import { ListingsCard } from './components/ListingsCard';
+import { saveToHistory, getHistory } from './services/storage';
+import { HistoryModal } from './components/HistoryModal';
 
 export default function App() {
   const [image, setImage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
+
+  // Filtering States
   const [maxPriceFilter, setMaxPriceFilter] = useState<number>(10000000);
   const [currentMaxPrice, setCurrentMaxPrice] = useState<number>(10000000);
   const [currentMinPrice, setCurrentMinPrice] = useState<number>(0);
+
+  // History States
+  const [historyModalVisible, setHistoryModalVisible] = useState<boolean>(false);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+
+  // Load history on startup
+  useEffect(() => {
+    loadHistory();
+  }, []);
+
+  const loadHistory = async () => {
+    const data = await getHistory();
+    setHistory(data);
+  };
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -75,21 +93,19 @@ export default function App() {
       const data = response.data;
       setResult(data);
 
-      // Initialize slider with max price found
+      await saveToHistory(image, data);
+      loadHistory();
+
       if (data.market_data && data.market_data.length > 0) {
         const prices = data.market_data.map(item => item.price);
         const maxP = Math.max(...prices);
         const minP = Math.min(...prices);
 
-        // Set slider range max slightly higher than max price for headroom
         const sliderMax = Math.ceil(maxP / 10000) * 10000;
         setMaxPriceFilter(sliderMax);
-
-        // Initialize knobs to existing data bounds
         setCurrentMaxPrice(maxP);
         setCurrentMinPrice(minP);
       }
-
 
     } catch (error: any) {
       console.error('Error:', error);
@@ -107,6 +123,22 @@ export default function App() {
     }
   };
 
+  const handleHistorySelection = (item: HistoryItem) => {
+    setImage(item.imageUri);
+    setResult(item.result);
+
+    if (item.result.market_data && item.result.market_data.length > 0) {
+      const prices = item.result.market_data.map(i => i.price);
+      const maxP = Math.max(...prices);
+      const minP = Math.min(...prices);
+      const sliderMax = Math.ceil(maxP / 10000) * 10000;
+
+      setMaxPriceFilter(sliderMax);
+      setCurrentMaxPrice(maxP);
+      setCurrentMinPrice(minP);
+    }
+  };
+
   const getFilteredItems = () => {
     if (!result || !result.market_data) return [];
     return result.market_data.filter(
@@ -121,8 +153,6 @@ export default function App() {
     const max = prices[prices.length - 1];
     const sum = prices.reduce((a, b) => a + b, 0);
     const avg = sum / prices.length;
-
-    // Median
     const mid = Math.floor(prices.length / 2);
     const median = prices.length % 2 !== 0 ? prices[mid] : (prices[mid - 1] + prices[mid]) / 2;
 
@@ -134,7 +164,14 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header />
+      <Header onHistoryPress={() => setHistoryModalVisible(true)} />
+
+      <HistoryModal
+        visible={historyModalVisible}
+        onClose={() => setHistoryModalVisible(false)}
+        history={history}
+        onSelectHistoryItem={handleHistorySelection}
+      />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {!image ? (
