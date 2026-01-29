@@ -5,8 +5,9 @@ from dotenv import load_dotenv
 from src.services.gemini_service import GeminiService
 from src.services.scraper_yahoo import YahooScraperService
 from src.services.supabase_service import SupabaseService
+from src.services.verification_service import VerificationService  # Import added
 import os
-import statistics # Import statistics
+import statistics
 
 load_dotenv()
 
@@ -25,16 +26,19 @@ app.add_middleware(
 gemini_service = None
 scraper_service = None
 supabase_service = None
+verification_service = None  # Initialize variable
 
 @app.on_event("startup")
 async def startup_event():
-    global gemini_service, scraper_service, supabase_service
+    global gemini_service, scraper_service, supabase_service, verification_service
     if os.getenv("GEMINI_API_KEY"):
         gemini_service = GeminiService()
     else:
         print("WARNING: GEMINI_API_KEY not set. /analyze endpoint will fail.")
+    
     scraper_service = YahooScraperService()
     supabase_service = SupabaseService()
+    verification_service = VerificationService() # Initialize service
 
 @app.get("/")
 def read_root():
@@ -50,10 +54,7 @@ async def perform_market_search(make: str, model: str, type_str: str = ""):
     Shared logic to search for equipment.
     Accepts English inputs.
     """
-    make_ja = make # In manual search, we assume input might be the query term
-    type_ja = type_str
-    
-    print(f"Manual Search: Make='{make}', Model='{model}', Type='{type_str}'")
+    print(f"Market Search: Make='{make}', Model='{model}', Type='{type_str}'")
     
     market_data = None
     
@@ -69,20 +70,19 @@ async def perform_market_search(make: str, model: str, type_str: str = ""):
             return items
 
         # Strategy 1: Search Exact String provided
-        search_query = f"{make} {model} {type_str}".strip()
-        print(f"Strategy 1: Searching '{search_query}'")
+        # search_query = f"{make} {model} {type_str}".strip() # Logic moved inside scraper
+        print(f"Strategy 1: Searching '{make} {model} {type_str}'")
         raw_data = await scraper_service.search_equipment(make, model, type_str)
         market_data = filter_valid_results(raw_data)
 
-        # Strategy 2: Search Make + Model
+        # Strategy 2: Search Make + Model (Broad)
         if not market_data:
-            search_query = f"{make} {model}"
-            print(f"Strategy 2: Searching '{search_query}'")
+            print(f"Strategy 2: Searching '{make} {model}'")
             raw_data = await scraper_service.search_equipment(make, model)
             market_data = filter_valid_results(raw_data)
             
-        # Strategy 3: Broad Model Only
-        if not market_data:
+        # Strategy 3: Broad Model Only (if model is specific enough, e.g., "L2501")
+        if not market_data and len(model) > 3:
             print(f"Strategy 3: Broad Search '{model}'")
             raw_data = await scraper_service.search_equipment("", model)
             market_data = filter_valid_results(raw_data)
@@ -149,24 +149,31 @@ async def analyze_equipment(file: UploadFile = File(...)):
         if "error" in analysis_result and analysis_result.get("confidence", 1.0) < 0.5:
              return analysis_result
 
-        # 2. Get Market Data using the logic inside analyze
-        # Note: We keep the original rigorous logic for AI results here or we could refactor 
-        # to use perform_market_search, but AI results have specific JA translations we want to use.
-        
         make = analysis_result.get("make")
         model = analysis_result.get("model")
         make_ja = analysis_result.get("make_ja")
         type_ja = analysis_result.get("type_ja")
-        
+
+        # 1.5 Verify Equipment (New Step)
+        if verification_service and make and model:
+            print(f"Verifying: {make} {model}")
+            verify_result = await verification_service.verify_model_existence(make, model, analysis_result.get("type", ""))
+            
+            analysis_result["verified"] = verify_result.get("verified", False)
+            analysis_result["verification_source"] = verify_result.get("verification_source")
+            
+            # If strictly unverified, we could lower confidence or warn user
+            if not analysis_result["verified"]:
+                print(f"Warning: Model {make} {model} not verified by web search.")
+                analysis_result["verification_warning"] = "Model not confirmed by web search."
+
+        # 2. Get Market Data
         market_data = None
         
         if make and model:
-             # Use the shared search logic which includes caching and multiple strategies
-             # Pass Japanese Make/Type if available as the primary search terms
              search_make = make_ja if make_ja else make
              search_type = type_ja if type_ja else ""
              
-             print(f"Analyze: Calling perform_market_search with {search_make}, {model}, {search_type}")
              market_data = await perform_market_search(search_make, model, search_type)
         
         if market_data:
@@ -184,5 +191,5 @@ async def analyze_equipment(file: UploadFile = File(...)):
         return analysis_result
         
     except Exception as e:
-        print(e)
+        print(f"Analyze Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
