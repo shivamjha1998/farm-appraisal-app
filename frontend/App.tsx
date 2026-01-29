@@ -14,7 +14,7 @@ import { IdentificationCard } from './components/IdentificationCard';
 import { MarketValueCard } from './components/MarketValueCard';
 import { FilterCard } from './components/FilterCard';
 import { ListingsCard } from './components/ListingsCard';
-import { saveToHistory, getHistory } from './services/storage';
+import { saveToHistory, getHistory, updateHistoryItem } from './services/storage';
 import { HistoryModal } from './components/HistoryModal';
 import { EditDetailsModal } from './components/EditDetailsModal';
 
@@ -32,6 +32,7 @@ export default function App() {
   // History States
   const [historyModalVisible, setHistoryModalVisible] = useState<boolean>(false);
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [currentHistoryId, setCurrentHistoryId] = useState<string | null>(null);
 
   // Load history on startup
   useEffect(() => {
@@ -53,6 +54,7 @@ export default function App() {
     if (!result.canceled) {
       setImage(result.assets[0].uri);
       setResult(null);
+      setCurrentHistoryId(null);
     }
   };
 
@@ -71,6 +73,7 @@ export default function App() {
     if (!result.canceled) {
       setImage(result.assets[0].uri);
       setResult(null);
+      setCurrentHistoryId(null);
     }
   };
 
@@ -95,7 +98,8 @@ export default function App() {
       const data = response.data;
       setResult(data);
 
-      await saveToHistory(image, data);
+      const newId = await saveToHistory(image, data);
+      setCurrentHistoryId(newId);
       loadHistory();
 
       if (data.market_data && data.market_data.length > 0) {
@@ -128,6 +132,7 @@ export default function App() {
   const handleHistorySelection = (item: HistoryItem) => {
     setImage(item.imageUri);
     setResult(item.result);
+    setCurrentHistoryId(item.id);
 
     if (item.result.market_data && item.result.market_data.length > 0) {
       const prices = item.result.market_data.map(i => i.price);
@@ -179,6 +184,11 @@ export default function App() {
 
       const data = response.data;
       setResult(data);
+
+      if (currentHistoryId) {
+        await updateHistoryItem(currentHistoryId, data);
+        loadHistory(); // Refresh the list
+      }
 
       // Update Filter logic as usual
       if (data.market_data && data.market_data.length > 0) {

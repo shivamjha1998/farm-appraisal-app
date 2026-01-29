@@ -49,8 +49,8 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
                     {item.result.year_range} • {item.result.type}
                 </Text>
                 <Text style={styles.cardPrice}>
-                    Avg: {item.result.price_stats?.avg
-                        ? `¥${item.result.price_stats.avg.toLocaleString()}`
+                    Median: {item.result.price_stats?.median
+                        ? `¥${item.result.price_stats.median.toLocaleString()}`
                         : 'N/A'}
                 </Text>
                 <Text style={styles.cardDate}>{formatDate(item.timestamp)}</Text>
