@@ -216,9 +216,9 @@ export default function App() {
         visible={editModalVisible}
         onClose={() => setEditModalVisible(false)}
         onSubmit={handleManualSearch}
-        initialMake={result?.make || ''}
+        initialMake={result?.make_ja || result?.make || ''}
         initialModel={result?.model || ''}
-        initialType={result?.type || ''}
+        initialType={result?.type_ja || result?.type || ''}
         initialYear={result?.year_range || ''}
       />
 

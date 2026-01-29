@@ -53,7 +53,7 @@ async def perform_market_search(make: str, model: str, type_str: str = ""):
     make_ja = make # In manual search, we assume input might be the query term
     type_ja = type_str
     
-    print(f"Manual Search: Make='{make}', Model='{model}'")
+    print(f"Manual Search: Make='{make}', Model='{model}', Type='{type_str}'")
     
     market_data = None
     
@@ -161,23 +161,13 @@ async def analyze_equipment(file: UploadFile = File(...)):
         market_data = None
         
         if make and model:
-             if supabase_service:
-                 market_data = await supabase_service.get_cached_price(make, model)
+             # Use the shared search logic which includes caching and multiple strategies
+             # Pass Japanese Make/Type if available as the primary search terms
+             search_make = make_ja if make_ja else make
+             search_type = type_ja if type_ja else ""
              
-             if not market_data and scraper_service:
-                # Reuse the specific AI-driven search strategies from your original code
-                # (I am omitting the full repetition here for brevity, but you should keep the
-                # Strategy 1-5 logic that uses make_ja/type_ja found in your original file)
-                
-                # ... [Keep your original scraping logic here using make_ja] ...
-                
-                # Placeholder for the logic:
-                if make_ja:
-                    raw = await scraper_service.search_equipment(make_ja, model)
-                    market_data = raw # simplified for example
-                
-                if market_data and supabase_service:
-                    await supabase_service.cache_price(make, model, market_data)
+             print(f"Analyze: Calling perform_market_search with {search_make}, {model}, {search_type}")
+             market_data = await perform_market_search(search_make, model, search_type)
         
         if market_data:
             analysis_result["market_data"] = market_data

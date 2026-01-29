@@ -23,6 +23,8 @@ export interface AnalysisResult {
     confidence: number;
     price_stats?: PriceStats;
     market_data?: MarketItem[];
+    make_ja?: string;
+    type_ja?: string;
 }
 
 export interface HistoryItem {

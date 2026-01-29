@@ -28,7 +28,7 @@ export const IdentificationCard: React.FC<IdentificationCardProps> = ({ result, 
             <View style={styles.cardContent}>
                 <View style={styles.row}>
                     <Text style={styles.label}>Make:</Text>
-                    <Text style={styles.value}>{result.make}</Text>
+                    <Text style={styles.value}>{result.make_ja || result.make}</Text>
                 </View>
                 <View style={styles.row}>
                     <Text style={styles.label}>Model:</Text>
@@ -36,7 +36,7 @@ export const IdentificationCard: React.FC<IdentificationCardProps> = ({ result, 
                 </View>
                 <View style={styles.row}>
                     <Text style={styles.label}>Type:</Text>
-                    <Text style={styles.value}>{result.type}</Text>
+                    <Text style={styles.value}>{result.type_ja || result.type}</Text>
                 </View>
                 <View style={styles.row}>
                     <Text style={styles.label}>Year:</Text>
