@@ -25,6 +25,7 @@ class GeminiService:
         - confidence: A number between 0.0 and 1.0 indicating your confidence in the identification.
         
         If you cannot identify the equipment with at least 0.5 confidence, return {"error": "Could not identify equipment", "confidence": <low_score>}.
+        If the model number is unclear or partially obscured, return the closest known valid model series or just the series prefix (e.g., 'Ke Series') rather than guessing a specific number.
         """
         
         try:

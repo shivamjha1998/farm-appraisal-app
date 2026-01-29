@@ -1,15 +1,15 @@
+# backend/src/services/scraper_yahoo.py
 import httpx
 from bs4 import BeautifulSoup
 from typing import List, Dict, Any
-
+import random
+import asyncio
 
 class YahooScraperService:
     def __init__(self):
-        # Base URL for Yahoo Auctions (using a generic search)
-        # Note: Yahoo Auctions Japan is auctions.yahoo.co.jp. 
-        # Assuming the user meant Yahoo Auctions Japan given "Make/Model" context which is common for tractors export.
-        # If it's a different Yahoo Auction, we'd adjust.
-        self.base_url = "https://auctions.yahoo.co.jp/search/search"
+        # UPDATED: Base URL for Yahoo Auctions Closed (Sold) Search
+        # This ensures we get actual transaction prices, not just asking prices.
+        self.base_url = "https://auctions.yahoo.co.jp/closedsearch/closedsearch"
 
     async def search_equipment(self, make: str, model: str, equipment_type: str = "") -> List[Dict[str, Any]]:
         # Construct query with make, optional type, and model
@@ -20,12 +20,12 @@ class YahooScraperService:
         
         query = " ".join(query_parts).strip()
         
+        # Params for Closed Search
         params = {
             "p": query,
-            # "va": query, # specific to some yahoo searches, might be causing issues if complex
-            "exflg": 1, 
-            "b": 1,     
-            "n": 20     
+            "va": query, # specific to some yahoo searches
+            "b": 1,      # Page 1
+            "n": 50      # Fetch 50 results (increased from 20 for better stats)
         }
         
         headers = {
@@ -35,15 +35,22 @@ class YahooScraperService:
             "Referer": "https://auctions.yahoo.co.jp/"
         }
 
-        print(f"Scraping Yahoo Auctions for: {query}")
+        print(f"Scraping Yahoo Sold Listings for: {query}")
         
         async with httpx.AsyncClient(follow_redirects=True) as client:
             try:
+                # Add a small random delay to be polite
+                await asyncio.sleep(random.uniform(0.5, 1.5))
+                
                 response = await client.get(self.base_url, params=params, headers=headers)
                 
+                if response.status_code == 404:
+                    print(f"Info: No results found for '{query}' (Yahoo returned 404)")
+                    return []
+                
                 if response.status_code != 200:
-                    print(f"Scraper Warning: Received status {response.status_code}, attempting to parse anyway.")
-                    # return [] # Yahoo sometimes returns 404 for valid search pages?
+                    print(f"Scraper Warning: Received status {response.status_code}")
+                    return []
                 
                 return self._parse_results(response.text)
             except Exception as e:
@@ -54,14 +61,7 @@ class YahooScraperService:
         soup = BeautifulSoup(html_content, 'html.parser')
         results = []
         
-        # Selectors depend heavily on Yahoo's current DOM structure.
-        # These are best-guess generic selectors for a list of products.
-        # Typically Yahoo Auctions uses class "Product" or similar.
-        # We will look for list items in the search result container.
-        
-        # Note: This is brittle and requires constant maintenance.
-        # Strategies: Look for 'li' with class 'Product'
-        
+        # Select items. Yahoo Closed Search often uses the same .Product structure
         items = soup.select(".Product") 
         
         for item in items:
@@ -69,24 +69,33 @@ class YahooScraperService:
                 title_el = item.select_one(".Product__titleLink")
                 price_el = item.select_one(".Product__priceValue")
                 image_el = item.select_one(".Product__imageData")
+                time_el = item.select_one(".Product__time") # Selector for End Time
                 
                 if title_el and price_el:
                     title = title_el.text.strip()
                     url = title_el.get('href')
+                    
+                    # Clean price text (e.g. "1,500円")
                     price_text = price_el.text.strip().replace('円', '').replace(',', '')
                     price = float(price_text) if price_text.isdigit() else 0.0
                     
                     image_url = image_el.get('src') if image_el else None
                     
-                    results.append({
-                        "title": title,
-                        "price": price,
-                        "currency": "JPY",
-                        "url": url,
-                        "image_url": image_url,
-                        "source": "Yahoo Auctions"
-                    })
+                    # Clean date text (e.g. "05/12 21:00")
+                    date_str = time_el.text.strip() if time_el else None
+                    
+                    # Only add if price is valid
+                    if price > 0:
+                        results.append({
+                            "title": title,
+                            "price": price,
+                            "currency": "JPY",
+                            "url": url,
+                            "image_url": image_url,
+                            "date": date_str,
+                            "source": "Yahoo Auctions (Sold)"
+                        })
             except Exception as e:
-                continue # Skip malformed items
+                continue 
 
         return results

@@ -5,6 +5,7 @@ export interface MarketItem {
     url: string;
     image_url: string | null;
     source: string;
+    date?: string;
 }
 
 export interface PriceStats {
@@ -25,6 +26,8 @@ export interface AnalysisResult {
     market_data?: MarketItem[];
     make_ja?: string;
     type_ja?: string;
+    verified?: boolean;
+    verification_warning?: string;
 }
 
 export interface HistoryItem {

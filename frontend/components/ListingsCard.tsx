@@ -12,10 +12,10 @@ export const ListingsCard: React.FC<ListingsCardProps> = ({ items }) => {
         <View style={styles.card}>
             <View style={styles.cardHeader}>
                 <Ionicons name="list" size={20} color="#2E7D32" />
-                <Text style={styles.cardTitle}>Recent Listings (Yahoo Japan)</Text>
+                <Text style={styles.cardTitle}>Recent Sales (Yahoo Japan)</Text>
             </View>
             {items
-                .slice(0, 100) // Show more items now that we can filter
+                .slice(0, 50)
                 .map((item, index) => (
                     <TouchableOpacity
                         key={index}
@@ -28,12 +28,26 @@ export const ListingsCard: React.FC<ListingsCardProps> = ({ items }) => {
                     >
                         <View style={{ flex: 1, paddingRight: 10 }}>
                             <Text numberOfLines={2} style={styles.listingTitle}>{item.title}</Text>
-                            <View style={styles.sourceRow}>
-                                <Ionicons name="open-outline" size={12} color="#999" />
-                                <Text style={styles.listingSource}>View on Yahoo Auctions</Text>
+
+                            <View style={styles.metaRow}>
+                                {item.date && (
+                                    <View style={styles.dateContainer}>
+                                        <Ionicons name="calendar-outline" size={12} color="#666" />
+                                        <Text style={styles.dateText}>{item.date}</Text>
+                                    </View>
+                                )}
+
+                                <View style={styles.sourceContainer}>
+                                    <Ionicons name="open-outline" size={12} color="#999" />
+                                    <Text style={styles.listingSource}>View</Text>
+                                </View>
                             </View>
                         </View>
-                        <Text style={styles.listingPrice}>¥{item.price.toLocaleString()}</Text>
+
+                        <View style={styles.priceColumn}>
+                            <Text style={styles.listingPrice}>¥{item.price.toLocaleString()}</Text>
+                            <Text style={styles.soldLabel}>Sold Price</Text>
+                        </View>
                     </TouchableOpacity>
                 ))}
         </View>
@@ -70,27 +84,56 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingVertical: 10,
+        paddingVertical: 12,
         borderBottomWidth: 1,
         borderBottomColor: '#f5f5f5',
     },
     listingTitle: {
         fontSize: 14,
         color: '#333',
-        marginBottom: 2,
+        marginBottom: 6,
+        lineHeight: 20,
+    },
+    metaRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+    },
+    dateContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#F5F5F5',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
+    },
+    dateText: {
+        fontSize: 12,
+        color: '#666',
+        marginLeft: 4,
+        fontWeight: '500',
+    },
+    sourceContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     listingSource: {
         fontSize: 12,
         color: '#999',
+        marginLeft: 2,
     },
-    sourceRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: 2,
+    priceColumn: {
+        alignItems: 'flex-end',
+        minWidth: 80,
     },
     listingPrice: {
-        fontSize: 15,
+        fontSize: 16,
         fontWeight: 'bold',
         color: '#2E7D32',
     },
+    soldLabel: {
+        fontSize: 10,
+        color: '#888',
+        marginTop: 2,
+    }
 });
