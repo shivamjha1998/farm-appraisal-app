@@ -1,11 +1,11 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from src.services.gemini_service import GeminiService
 from src.services.scraper_yahoo import YahooScraperService
 from src.services.supabase_service import SupabaseService
-from src.services.verification_service import VerificationService  # Import added
+from src.services.verification_service import VerificationService
 import os
 import statistics
 
@@ -26,7 +26,7 @@ app.add_middleware(
 gemini_service = None
 scraper_service = None
 supabase_service = None
-verification_service = None  # Initialize variable
+verification_service = None
 
 @app.on_event("startup")
 async def startup_event():
@@ -38,7 +38,7 @@ async def startup_event():
     
     scraper_service = YahooScraperService()
     supabase_service = SupabaseService()
-    verification_service = VerificationService() # Initialize service
+    verification_service = VerificationService()
 
 @app.get("/")
 def read_root():
@@ -93,23 +93,21 @@ async def perform_market_search(make: str, model: str, type_str: str = ""):
             
     return market_data
 
-# --- New Search Endpoint ---
-class SearchRequest(BaseModel):
-    make: str
-    model: str
-    type: str = ""
-    year: str = ""
-
-@app.post("/search")
-async def search_equipment_manual(request: SearchRequest):
+@app.get("/api/search-prices")
+async def search_prices(
+    model: str = Query(..., description="Model number of the equipment"),
+    make: str = Query(..., description="Make/Manufacturer"),
+    type: str = Query("", description="Type of the equipment"),
+    year: str = Query("", description="Year range")
+):
     try:
-        market_data = await perform_market_search(request.make, request.model, request.type)
+        market_data = await perform_market_search(make, model, type)
         
         result = {
-            "make": request.make,
-            "model": request.model,
-            "type": request.type,
-            "year_range": request.year if request.year else "Unknown",
+            "make": make,
+            "model": model,
+            "type": type,
+            "year_range": year if year else "Unknown",
             "confidence": 1.1,
             "market_data": market_data or []
         }
@@ -133,7 +131,7 @@ async def search_equipment_manual(request: SearchRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/analyze")
+@app.post("/api/analyze-image")
 async def analyze_equipment(file: UploadFile = File(...)):
     if not gemini_service:
         raise HTTPException(status_code=503, detail="Gemini Service not configured")

@@ -1,4 +1,3 @@
-// frontend/App.tsx
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, Text, ScrollView, Alert, Platform, SafeAreaView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
@@ -92,7 +91,7 @@ export default function App() {
     });
 
     try {
-      const response = await axios.post<AnalysisResult>(`${API_URL}/analyze`, formData, {
+      const response = await axios.post<AnalysisResult>(`${API_URL}/api/analyze-image`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       const data = response.data;
@@ -171,15 +170,14 @@ export default function App() {
 
   const handleManualSearch = async (make: string, model: string, type: string, year: string) => {
     setLoading(true);
-    // Don't clear result immediately so we don't flash empty screen, 
-    // but maybe good to indicate loading
-
     try {
-      const response = await axios.post<AnalysisResult>(`${API_URL}/search`, {
-        make,
-        model,
-        type,
-        year
+      const response = await axios.get<AnalysisResult>(`${API_URL}/api/search-prices`, {
+        params: {
+          make,
+          model,
+          type,
+          year
+        }
       });
 
       const data = response.data;
@@ -187,7 +185,7 @@ export default function App() {
 
       if (currentHistoryId) {
         await updateHistoryItem(currentHistoryId, data);
-        loadHistory(); // Refresh the list
+        loadHistory();
       }
 
       // Update Filter logic as usual
