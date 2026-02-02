@@ -2,12 +2,15 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Create a non-root user for security
+RUN useradd -m -u 1000 appuser
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Playwright dependencies (commented out for initial build speed, will enable in Phase 3)
-# RUN pip install playwright && playwright install --with-deps chromium
-
 COPY . .
+USER appuser
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+ENV PORT=8000
+
+CMD ["sh", "-c", "uvicorn src.main:app --host 0.0.0.0 --port ${PORT}"]
