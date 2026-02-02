@@ -6,9 +6,9 @@ import {
     StyleSheet,
     TouchableOpacity,
     FlatList,
-    Image,
-    SafeAreaView
+    Image
 } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { HistoryItem } from '../types';
 
@@ -61,7 +61,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
 
     return (
         <Modal animationType="slide" visible={visible} onRequestClose={onClose}>
-            <SafeAreaView style={styles.container}>
+            <SafeAreaProvider style={styles.container}>
                 <View style={styles.header}>
                     <TouchableOpacity onPress={onClose} style={styles.closeButton}>
                         <Ionicons name="close" size={24} color="#333" />
@@ -83,7 +83,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
                         contentContainerStyle={styles.listContent}
                     />
                 )}
-            </SafeAreaView>
+            </SafeAreaProvider>
         </Modal>
     );
 };
