@@ -2,13 +2,17 @@ import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 interface HeaderProps {
     onHistoryPress: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({ onHistoryPress }) => {
+    const insets = useSafeAreaInsets();
+
     return (
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingTop: insets.top + 15 }]}>
             <View style={{ width: 40 }} />
 
             <View style={styles.titleContainer}>

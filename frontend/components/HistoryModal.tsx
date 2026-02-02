@@ -8,7 +8,7 @@ import {
     FlatList,
     Image
 } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { HistoryItem } from '../types';
 
@@ -25,6 +25,8 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
     history,
     onSelectHistoryItem
 }) => {
+    const insets = useSafeAreaInsets();
+
 
     const formatDate = (timestamp: number) => {
         return new Date(timestamp).toLocaleDateString(undefined, {
@@ -62,7 +64,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
     return (
         <Modal animationType="slide" visible={visible} onRequestClose={onClose}>
             <SafeAreaProvider style={styles.container}>
-                <View style={styles.header}>
+                <View style={[styles.header, { paddingTop: insets.top + 15 }]}>
                     <TouchableOpacity onPress={onClose} style={styles.closeButton}>
                         <Ionicons name="close" size={24} color="#333" />
                     </TouchableOpacity>
