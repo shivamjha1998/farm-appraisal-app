@@ -1,8 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { COLORS, NEO_STYLE } from '../theme';
 
 interface HeaderProps {
     onHistoryPress: () => void;
@@ -12,16 +12,18 @@ export const Header: React.FC<HeaderProps> = ({ onHistoryPress }) => {
     const insets = useSafeAreaInsets();
 
     return (
-        <View style={[styles.header, { paddingTop: insets.top + 15 }]}>
-            <View style={{ width: 40 }} />
-
+        <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
             <View style={styles.titleContainer}>
-                <Ionicons name="leaf" size={24} color="#2E7D32" />
+                <Ionicons name="leaf" size={28} color={COLORS.primary} />
                 <Text style={styles.headerTitle}>AgriValue</Text>
             </View>
 
-            <TouchableOpacity onPress={onHistoryPress} style={styles.historyButton}>
-                <Ionicons name="time-outline" size={24} color="#333" />
+            <TouchableOpacity
+                style={styles.historyButton}
+                onPress={onHistoryPress}
+                activeOpacity={0.7}
+            >
+                <Ionicons name="time" size={20} color={COLORS.text} />
             </TouchableOpacity>
         </View>
     );
@@ -29,28 +31,35 @@ export const Header: React.FC<HeaderProps> = ({ onHistoryPress }) => {
 
 const styles = StyleSheet.create({
     header: {
+        backgroundColor: COLORS.surface,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 15,
-        paddingHorizontal: 15,
-        backgroundColor: '#fff',
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
-        elevation: 2,
+        paddingHorizontal: 20,
+        paddingBottom: 20,
+        borderBottomWidth: 3,
+        borderBottomColor: COLORS.border,
+        zIndex: 10,
     },
     titleContainer: {
         flexDirection: 'row',
         alignItems: 'center',
+        gap: 8,
     },
     headerTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginLeft: 8,
-        color: '#333',
+        fontSize: 24,
+        fontWeight: '900',
+        color: COLORS.text,
+        letterSpacing: -1,
+        textTransform: 'uppercase',
     },
     historyButton: {
-        width: 40,
-        alignItems: 'flex-end',
-    }
+        padding: 8,
+        backgroundColor: COLORS.accent,
+        borderWidth: 2,
+        borderColor: COLORS.border,
+        borderRadius: 8,
+        ...NEO_STYLE.shadow,
+        shadowOffset: { width: 2, height: 2 },
+    },
 });

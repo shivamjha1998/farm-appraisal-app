@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
+import { COLORS, NEO_STYLE } from '../theme';
 
 interface FilterCardProps {
     min: number;
@@ -21,7 +22,7 @@ export const FilterCard: React.FC<FilterCardProps> = ({
     return (
         <View style={styles.card}>
             <View style={styles.cardHeader}>
-                <Ionicons name="filter" size={20} color="#2E7D32" />
+                <Ionicons name="filter" size={24} color={COLORS.text} />
                 <Text style={styles.cardTitle}>Filter by Price</Text>
             </View>
             <View style={styles.filterContainer}>
@@ -40,7 +41,7 @@ export const FilterCard: React.FC<FilterCardProps> = ({
                             onChange(values[0], values[1]);
                         }}
                         selectedStyle={{
-                            backgroundColor: '#2E7D32',
+                            backgroundColor: COLORS.primary, // Theme primary
                         }}
                         unselectedStyle={{
                             backgroundColor: '#e0e0e0',
@@ -49,12 +50,17 @@ export const FilterCard: React.FC<FilterCardProps> = ({
                             height: 40,
                         }}
                         trackStyle={{
-                            height: 4,
+                            height: 6, // Thicker track
+                            backgroundColor: COLORS.border,
+                            borderRadius: 0, // Square ends
                         }}
                         markerStyle={{
-                            backgroundColor: '#2E7D32',
-                            height: 20,
-                            width: 20,
+                            backgroundColor: COLORS.success,
+                            height: 24,
+                            width: 24,
+                            borderWidth: 2,
+                            borderColor: COLORS.border,
+                            borderRadius: 0, // Square marker
                         }}
                     />
                 </View>
@@ -65,29 +71,25 @@ export const FilterCard: React.FC<FilterCardProps> = ({
 
 const styles = StyleSheet.create({
     card: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
+        ...NEO_STYLE.container,
+        ...NEO_STYLE.shadow,
         padding: 15,
         marginBottom: 15,
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
     },
     cardHeader: {
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0',
+        borderBottomWidth: 3,
+        borderBottomColor: COLORS.border,
         paddingBottom: 8,
     },
     cardTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
+        fontSize: 18,
+        fontWeight: '900',
         marginLeft: 8,
-        color: '#333',
+        color: COLORS.text,
+        textTransform: 'uppercase',
     },
     filterContainer: {
         paddingVertical: 10,
@@ -95,11 +97,18 @@ const styles = StyleSheet.create({
     row: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        marginBottom: 10,
     },
     filterLabel: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#333',
+        fontSize: 16,
+        fontWeight: '800',
+        color: COLORS.text,
         marginBottom: 5,
+        backgroundColor: COLORS.accent, // Highlighting labels
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderWidth: 2,
+        borderColor: COLORS.border,
+        overflow: 'hidden',
     },
 });

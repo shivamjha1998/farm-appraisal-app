@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { PriceStats } from '../types';
+import { COLORS, NEO_STYLE } from '../theme';
 
 interface MarketValueCardProps {
     stats: PriceStats;
@@ -11,7 +12,7 @@ export const MarketValueCard: React.FC<MarketValueCardProps> = ({ stats }) => {
     return (
         <View style={styles.card}>
             <View style={styles.cardHeader}>
-                <Ionicons name="stats-chart" size={20} color="#2E7D32" />
+                <Ionicons name="stats-chart" size={24} color={COLORS.text} />
                 <Text style={styles.cardTitle}>Market Estimate</Text>
             </View>
             <View style={styles.priceContainer}>
@@ -34,64 +35,76 @@ export const MarketValueCard: React.FC<MarketValueCardProps> = ({ stats }) => {
 
 const styles = StyleSheet.create({
     card: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
+        ...NEO_STYLE.container,
+        ...NEO_STYLE.shadow,
         padding: 15,
         marginBottom: 15,
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
+        backgroundColor: COLORS.secondary, // Make this card stand out
     },
     cardHeader: {
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0',
+        borderBottomWidth: 3,
+        borderBottomColor: COLORS.border,
         paddingBottom: 8,
     },
     cardTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
+        fontSize: 18,
+        fontWeight: '900',
         marginLeft: 8,
-        color: '#333',
+        color: COLORS.text,
+        textTransform: 'uppercase',
     },
     priceContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         marginTop: 5,
+        gap: 10,
     },
     priceBox: {
+        flex: 1,
         alignItems: 'center',
+        backgroundColor: COLORS.surface,
+        borderWidth: 2,
+        borderColor: COLORS.border,
+        padding: 8,
+        borderRadius: 8,
     },
     priceBoxHighlighted: {
+        flex: 1.2, // Slightly larger
         alignItems: 'center',
-        backgroundColor: '#2E7D32',
-        paddingVertical: 8,
-        paddingHorizontal: 20,
-        borderRadius: 10,
+        backgroundColor: COLORS.accent,
+        borderWidth: 3, // Thicker border
+        borderColor: COLORS.border,
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+        borderRadius: 8,
+        ...NEO_STYLE.shadow,
     },
     priceLabel: {
         fontSize: 12,
-        color: '#888',
-        marginBottom: 2,
+        color: COLORS.text,
+        marginBottom: 4,
+        fontWeight: '700',
+        textTransform: 'uppercase',
     },
     priceLabelLight: {
-        fontSize: 12,
-        color: '#E8F5E9',
-        marginBottom: 2,
+        fontSize: 14,
+        color: COLORS.text, // Dark text on yellow background
+        marginBottom: 4,
+        fontWeight: '800',
+        textTransform: 'uppercase',
     },
     priceValueSmall: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#333',
+        fontSize: 14,
+        fontWeight: '800',
+        color: COLORS.text,
     },
     priceValueLarge: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#fff',
+        fontSize: 18,
+        fontWeight: '900',
+        color: COLORS.text,
     },
 });

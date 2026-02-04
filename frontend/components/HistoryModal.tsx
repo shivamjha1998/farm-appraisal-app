@@ -11,6 +11,7 @@ import {
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { HistoryItem } from '../types';
+import { COLORS, NEO_STYLE } from '../theme';
 
 interface HistoryModalProps {
     visible: boolean;
@@ -57,7 +58,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
                 </Text>
                 <Text style={styles.cardDate}>{formatDate(item.timestamp)}</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#ccc" />
+            <Ionicons name="chevron-forward" size={20} color={COLORS.text} />
         </TouchableOpacity>
     );
 
@@ -66,15 +67,15 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
             <SafeAreaProvider style={styles.container}>
                 <View style={[styles.header, { paddingTop: insets.top + 15 }]}>
                     <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                        <Ionicons name="close" size={24} color="#333" />
+                        <Ionicons name="close" size={28} color={COLORS.text} />
                     </TouchableOpacity>
                     <Text style={styles.title}>Scan History</Text>
-                    <View style={{ width: 24 }} />
+                    <View style={{ width: 40 }} />
                 </View>
 
                 {history.length === 0 ? (
                     <View style={styles.emptyContainer}>
-                        <Ionicons name="time-outline" size={64} color="#ccc" />
+                        <Ionicons name="time-outline" size={80} color={COLORS.secondary} />
                         <Text style={styles.emptyText}>No history yet</Text>
                     </View>
                 ) : (
@@ -93,44 +94,44 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F5F7FA',
+        backgroundColor: COLORS.background,
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: 15,
-        backgroundColor: '#fff',
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
+        padding: 20,
+        backgroundColor: COLORS.surface,
+        borderBottomWidth: 3,
+        borderBottomColor: COLORS.border,
     },
     title: {
-        fontSize: 18,
-        fontWeight: 'bold',
+        fontSize: 20,
+        fontWeight: '900',
+        textTransform: 'uppercase',
+        color: COLORS.text,
     },
     closeButton: {
         padding: 5,
     },
     listContent: {
-        padding: 15,
+        padding: 20,
     },
     card: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#fff',
-        borderRadius: 12,
+        ...NEO_STYLE.container, // Border radius 8, border width 3, border color black
         padding: 10,
-        marginBottom: 10,
-        shadowColor: '#000',
-        shadowOpacity: 0.05,
-        shadowRadius: 5,
-        elevation: 2,
+        marginBottom: 15,
+        ...NEO_STYLE.shadow,
     },
     thumbnail: {
-        width: 70,
-        height: 70,
-        borderRadius: 8,
+        width: 80,
+        height: 80,
+        borderRadius: 4,
         backgroundColor: '#eee',
+        borderWidth: 2,
+        borderColor: COLORS.border,
     },
     cardInfo: {
         flex: 1,
@@ -139,24 +140,28 @@ const styles = StyleSheet.create({
     },
     cardTitle: {
         fontSize: 16,
-        fontWeight: 'bold',
-        color: '#333',
+        fontWeight: '900',
+        color: COLORS.text,
+        textTransform: 'uppercase',
     },
     cardSubtitle: {
-        fontSize: 13,
-        color: '#666',
-        marginTop: 2,
+        fontSize: 14,
+        color: COLORS.text,
+        marginTop: 4,
+        fontWeight: '500',
     },
     cardPrice: {
         fontSize: 14,
-        color: '#2E7D32',
-        fontWeight: '600',
+        color: COLORS.primary,
+        fontWeight: '800',
         marginTop: 4,
     },
     cardDate: {
         fontSize: 12,
-        color: '#999',
+        color: COLORS.text,
+        opacity: 0.6,
         marginTop: 4,
+        fontWeight: '700',
     },
     emptyContainer: {
         flex: 1,
@@ -164,8 +169,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     emptyText: {
-        marginTop: 15,
-        fontSize: 16,
-        color: '#999',
+        marginTop: 20,
+        fontSize: 20,
+        fontWeight: '800',
+        color: COLORS.text,
     }
 });

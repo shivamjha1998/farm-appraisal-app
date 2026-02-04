@@ -5,6 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
+import { COLORS, NEO_STYLE } from './theme';
 import { API_URL } from './constants';
 import { MarketItem, AnalysisResult, HistoryItem } from './types';
 import { Header } from './components/Header';
@@ -246,7 +247,7 @@ export default function App() {
 
         {loading && (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#2E7D32" />
+            <ActivityIndicator size="large" color={COLORS.primary} />
             <Text style={styles.loadingText}>Identifying Equipment...</Text>
           </View>
         )}
@@ -288,8 +289,8 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F7FA',
-    paddingTop: Platform.OS === 'android' ? 30 : 0,
+    backgroundColor: COLORS.background,
+    // paddingTop handled by Header + SafeArea
   },
   scrollContent: {
     padding: 20,
@@ -300,21 +301,29 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   loadingText: {
-    marginTop: 10,
-    color: '#2E7D32',
-    fontSize: 16,
+    marginTop: 15,
+    color: COLORS.text,
+    fontSize: 18,
+    fontWeight: '700',
   },
   resultContainer: {
     marginTop: 10,
+    gap: 20, // Add gap between cards
   },
   resetButton: {
     alignItems: 'center',
-    padding: 15,
-    marginTop: 10,
+    padding: 16,
+    marginTop: 20,
+    backgroundColor: COLORS.surface,
+    borderWidth: 2,
+    borderColor: COLORS.border,
+    borderRadius: 8,
+    ...NEO_STYLE.shadow,
   },
   resetButtonText: {
-    color: '#666',
+    color: COLORS.text,
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '800',
+    textTransform: 'uppercase',
   },
 });

@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Linking, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { MarketItem } from '../types';
+import { COLORS, NEO_STYLE } from '../theme';
 
 interface ListingsCardProps {
     items: MarketItem[];
@@ -11,7 +12,7 @@ export const ListingsCard: React.FC<ListingsCardProps> = ({ items }) => {
     return (
         <View style={styles.card}>
             <View style={styles.cardHeader}>
-                <Ionicons name="list" size={20} color="#2E7D32" />
+                <Ionicons name="list" size={24} color={COLORS.text} />
                 <Text style={styles.cardTitle}>Recent Sales (Yahoo Japan)</Text>
             </View>
             {items
@@ -32,13 +33,13 @@ export const ListingsCard: React.FC<ListingsCardProps> = ({ items }) => {
                             <View style={styles.metaRow}>
                                 {item.date && (
                                     <View style={styles.dateContainer}>
-                                        <Ionicons name="calendar-outline" size={12} color="#666" />
+                                        <Ionicons name="calendar-outline" size={12} color={COLORS.text} />
                                         <Text style={styles.dateText}>{item.date}</Text>
                                     </View>
                                 )}
 
                                 <View style={styles.sourceContainer}>
-                                    <Ionicons name="open-outline" size={12} color="#999" />
+                                    <Ionicons name="open-outline" size={12} color={COLORS.primary} />
                                     <Text style={styles.listingSource}>View</Text>
                                 </View>
                             </View>
@@ -56,43 +57,47 @@ export const ListingsCard: React.FC<ListingsCardProps> = ({ items }) => {
 
 const styles = StyleSheet.create({
     card: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 15,
+        ...NEO_STYLE.container,
+        ...NEO_STYLE.shadow,
+        padding: 5, // Reduce padding as items have their own borders
         marginBottom: 15,
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
+        backgroundColor: COLORS.surface,
+        gap: 10,
     },
     cardHeader: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0',
-        paddingBottom: 8,
+        marginBottom: 8,
+        padding: 10,
+        borderBottomWidth: 3,
+        borderBottomColor: COLORS.border,
     },
     cardTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
+        fontSize: 18,
+        fontWeight: '900',
         marginLeft: 8,
-        color: '#333',
+        color: COLORS.text,
+        textTransform: 'uppercase',
     },
     listingItem: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingVertical: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: '#f5f5f5',
+        paddingHorizontal: 12,
+        backgroundColor: COLORS.background, // Alternating background feeling
+        borderWidth: 2,
+        borderColor: COLORS.border,
+        borderRadius: 6,
+        marginBottom: 5,
+        ...NEO_STYLE.shadowPressed, // Subtle shadow for items
     },
     listingTitle: {
         fontSize: 14,
-        color: '#333',
+        color: COLORS.text,
         marginBottom: 6,
         lineHeight: 20,
+        fontWeight: '700',
     },
     metaRow: {
         flexDirection: 'row',
@@ -102,14 +107,16 @@ const styles = StyleSheet.create({
     dateContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#F5F5F5',
+        backgroundColor: '#fff',
+        borderWidth: 1,
+        borderColor: COLORS.border,
         paddingHorizontal: 6,
         paddingVertical: 2,
         borderRadius: 4,
     },
     dateText: {
         fontSize: 12,
-        color: '#666',
+        color: COLORS.text,
         marginLeft: 4,
         fontWeight: '500',
     },
@@ -119,21 +126,25 @@ const styles = StyleSheet.create({
     },
     listingSource: {
         fontSize: 12,
-        color: '#999',
+        color: COLORS.primary,
         marginLeft: 2,
+        fontWeight: '700',
+        textDecorationLine: 'underline',
     },
     priceColumn: {
         alignItems: 'flex-end',
-        minWidth: 80,
+        minWidth: 90,
     },
     listingPrice: {
         fontSize: 16,
-        fontWeight: 'bold',
-        color: '#2E7D32',
+        fontWeight: '900',
+        color: COLORS.primary,
     },
     soldLabel: {
         fontSize: 10,
-        color: '#888',
+        color: COLORS.text,
+        fontWeight: '600',
         marginTop: 2,
+        textTransform: 'uppercase',
     }
 });

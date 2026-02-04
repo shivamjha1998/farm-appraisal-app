@@ -10,6 +10,7 @@ import {
     Platform,
     ScrollView
 } from 'react-native';
+import { COLORS, NEO_STYLE } from '../theme';
 
 interface EditDetailsModalProps {
     visible: boolean;
@@ -135,25 +136,25 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0,0,0,0.5)',
+        backgroundColor: 'rgba(0,0,0,0.7)', // Darker dim
     },
     modalView: {
-        width: '85%',
-        backgroundColor: 'white',
-        borderRadius: 20,
+        width: '90%',
+        backgroundColor: COLORS.surface,
+        borderRadius: 12,
         padding: 25,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
+        borderWidth: 4,
+        borderColor: COLORS.border,
+        ...NEO_STYLE.shadow,
+        shadowColor: 'black', // Ensure hard shadow
     },
     modalTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
+        fontSize: 22,
+        fontWeight: '900',
         marginBottom: 20,
         textAlign: 'center',
-        color: '#333',
+        color: COLORS.text,
+        textTransform: 'uppercase',
     },
     inputGroup: {
         marginBottom: 15,
@@ -163,42 +164,51 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     label: {
-        fontSize: 14,
-        color: '#666',
+        fontSize: 16,
+        color: COLORS.text,
         marginBottom: 5,
+        fontWeight: '700',
     },
     input: {
-        borderWidth: 1,
-        borderColor: '#ddd',
+        borderWidth: 3,
+        borderColor: COLORS.border,
         borderRadius: 8,
         padding: 12,
         fontSize: 16,
-        backgroundColor: '#F9F9F9',
+        fontWeight: '600',
+        backgroundColor: '#fff',
+        color: COLORS.text,
     },
     buttonRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginTop: 10,
+        marginTop: 20,
+        gap: 10,
     },
     button: {
         flex: 1,
-        borderRadius: 10,
+        borderRadius: 8,
         padding: 15,
         alignItems: 'center',
-        marginHorizontal: 5,
+        borderWidth: 3,
+        borderColor: COLORS.border,
+        ...NEO_STYLE.shadow,
+        shadowOffset: { width: 2, height: 2 },
     },
     buttonCancel: {
-        backgroundColor: '#f0f0f0',
+        backgroundColor: COLORS.surface,
     },
     buttonSubmit: {
-        backgroundColor: '#2E7D32',
+        backgroundColor: COLORS.primary,
     },
     textCancel: {
-        color: '#333',
-        fontWeight: '600',
+        color: COLORS.text,
+        fontWeight: '800',
+        textTransform: 'uppercase',
     },
     textSubmit: {
-        color: 'white',
-        fontWeight: 'bold',
+        color: COLORS.text,
+        fontWeight: '800',
+        textTransform: 'uppercase',
     },
 });
