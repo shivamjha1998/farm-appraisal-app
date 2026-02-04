@@ -22,7 +22,6 @@ class VerificationService:
             # We run it in a thread to avoid blocking the async event loop.
             def _search_sync():
                 with DDGS() as ddgs:
-                    # usage: ddgs.text(keywords, max_results=...)
                     return list(ddgs.text(query, max_results=5))
 
             results = await asyncio.to_thread(_search_sync)

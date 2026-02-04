@@ -1,4 +1,3 @@
-# backend/src/services/scraper_yahoo.py
 import httpx
 from bs4 import BeautifulSoup
 from typing import List, Dict, Any
@@ -7,12 +6,9 @@ import asyncio
 
 class YahooScraperService:
     def __init__(self):
-        # UPDATED: Base URL for Yahoo Auctions Closed (Sold) Search
-        # This ensures we get actual transaction prices, not just asking prices.
         self.base_url = "https://auctions.yahoo.co.jp/closedsearch/closedsearch"
 
     async def search_equipment(self, make: str, model: str, equipment_type: str = "") -> List[Dict[str, Any]]:
-        # Construct query with make, optional type, and model
         query_parts = [make]
         if equipment_type:
             query_parts.append(equipment_type)
@@ -23,9 +19,9 @@ class YahooScraperService:
         # Params for Closed Search
         params = {
             "p": query,
-            "va": query, # specific to some yahoo searches
-            "b": 1,      # Page 1
-            "n": 50      # Fetch 50 results (increased from 20 for better stats)
+            "va": query,
+            "b": 1,
+            "n": 50
         }
         
         headers = {
@@ -69,19 +65,19 @@ class YahooScraperService:
                 title_el = item.select_one(".Product__titleLink")
                 price_el = item.select_one(".Product__priceValue")
                 image_el = item.select_one(".Product__imageData")
-                time_el = item.select_one(".Product__time") # Selector for End Time
+                time_el = item.select_one(".Product__time")
                 
                 if title_el and price_el:
                     title = title_el.text.strip()
                     url = title_el.get('href')
                     
-                    # Clean price text (e.g. "1,500円")
+                    # Clean price text
                     price_text = price_el.text.strip().replace('円', '').replace(',', '')
                     price = float(price_text) if price_text.isdigit() else 0.0
                     
                     image_url = image_el.get('src') if image_el else None
                     
-                    # Clean date text (e.g. "05/12 21:00")
+                    # Clean date text
                     date_str = time_el.text.strip() if time_el else None
                     
                     # Only add if price is valid

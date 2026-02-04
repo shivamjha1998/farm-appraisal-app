@@ -1,7 +1,6 @@
 from supabase import create_client, Client
 import os
 from typing import Dict, Any, Optional
-import json
 
 class SupabaseService:
     def __init__(self):
@@ -49,7 +48,6 @@ class SupabaseService:
                 "make": make,
                 "model": model,
                 "data": data,
-                # "updated_at": "now()" # let triggers handle this or client
             }, on_conflict="make,model").execute()
             print(f"Cached data for {make} {model}")
         except Exception as e:

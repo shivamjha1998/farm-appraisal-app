@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     card: {
         ...NEO_STYLE.container,
         ...NEO_STYLE.shadow,
-        padding: 5, // Reduce padding as items have their own borders
+        padding: 5,
         marginBottom: 15,
         backgroundColor: COLORS.surface,
         gap: 10,
@@ -85,12 +85,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 12,
         paddingHorizontal: 12,
-        backgroundColor: COLORS.background, // Alternating background feeling
+        backgroundColor: COLORS.background,
         borderWidth: 2,
         borderColor: COLORS.border,
         borderRadius: 6,
         marginBottom: 5,
-        ...NEO_STYLE.shadowPressed, // Subtle shadow for items
+        ...NEO_STYLE.shadowPressed,
     },
     listingTitle: {
         fontSize: 14,

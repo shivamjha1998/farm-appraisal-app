@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
         ...NEO_STYLE.shadow,
         padding: 15,
         marginBottom: 15,
-        backgroundColor: COLORS.secondary, // Make this card stand out
+        backgroundColor: COLORS.secondary,
     },
     cardHeader: {
         flexDirection: 'row',
@@ -73,10 +73,10 @@ const styles = StyleSheet.create({
         borderRadius: 8,
     },
     priceBoxHighlighted: {
-        flex: 1.2, // Slightly larger
+        flex: 1.2,
         alignItems: 'center',
         backgroundColor: COLORS.accent,
-        borderWidth: 3, // Thicker border
+        borderWidth: 3,
         borderColor: COLORS.border,
         paddingVertical: 12,
         paddingHorizontal: 10,
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     },
     priceLabelLight: {
         fontSize: 14,
-        color: COLORS.text, // Dark text on yellow background
+        color: COLORS.text,
         marginBottom: 4,
         fontWeight: '800',
         textTransform: 'uppercase',

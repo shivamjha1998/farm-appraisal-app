@@ -15,7 +15,6 @@ import { COLORS, NEO_STYLE } from '../theme';
 interface EditDetailsModalProps {
     visible: boolean;
     onClose: () => void;
-    // Updated callback signature
     onSubmit: (make: string, model: string, type: string, year: string) => void;
     initialMake: string;
     initialModel: string;
@@ -136,7 +135,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0,0,0,0.7)', // Darker dim
+        backgroundColor: 'rgba(0,0,0,0.7)',
     },
     modalView: {
         width: '90%',
@@ -146,7 +145,7 @@ const styles = StyleSheet.create({
         borderWidth: 4,
         borderColor: COLORS.border,
         ...NEO_STYLE.shadow,
-        shadowColor: 'black', // Ensure hard shadow
+        shadowColor: 'black',
     },
     modalTitle: {
         fontSize: 22,

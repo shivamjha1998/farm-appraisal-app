@@ -11,7 +11,6 @@ class GeminiService:
             self.model = None
             return
         genai.configure(api_key=api_key)
-        # Using gemini-flash-latest (likely 1.5 flash alias) to avoid 404s and Quota issues
         self.model = genai.GenerativeModel(
             'gemini-flash-latest',
             generation_config={"response_mime_type": "application/json"}

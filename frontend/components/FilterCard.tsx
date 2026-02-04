@@ -41,7 +41,7 @@ export const FilterCard: React.FC<FilterCardProps> = ({
                             onChange(values[0], values[1]);
                         }}
                         selectedStyle={{
-                            backgroundColor: COLORS.primary, // Theme primary
+                            backgroundColor: COLORS.primary,
                         }}
                         unselectedStyle={{
                             backgroundColor: '#e0e0e0',
@@ -50,9 +50,9 @@ export const FilterCard: React.FC<FilterCardProps> = ({
                             height: 40,
                         }}
                         trackStyle={{
-                            height: 6, // Thicker track
+                            height: 6,
                             backgroundColor: COLORS.border,
-                            borderRadius: 0, // Square ends
+                            borderRadius: 0,
                         }}
                         markerStyle={{
                             backgroundColor: COLORS.success,
@@ -60,7 +60,7 @@ export const FilterCard: React.FC<FilterCardProps> = ({
                             width: 24,
                             borderWidth: 2,
                             borderColor: COLORS.border,
-                            borderRadius: 0, // Square marker
+                            borderRadius: 0,
                         }}
                     />
                 </View>
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         color: COLORS.text,
         marginBottom: 5,
-        backgroundColor: COLORS.accent, // Highlighting labels
+        backgroundColor: COLORS.accent,
         paddingHorizontal: 8,
         paddingVertical: 2,
         borderWidth: 2,

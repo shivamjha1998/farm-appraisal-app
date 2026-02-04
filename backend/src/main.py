@@ -59,8 +59,7 @@ async def lifespan(app: FastAPI):
     services.supabase = SupabaseService()
     services.verification = VerificationService()
     yield
-    # Shutdown: Clean up resources if necessary (e.g., close DB connections)
-    # if services.supabase: services.supabase.close() 
+    # Shutdown: Clean up resources if necessary
 
 # --- App Config ---
 app = FastAPI(lifespan=lifespan)

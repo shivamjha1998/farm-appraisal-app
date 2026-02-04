@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
   },
   resultContainer: {
     marginTop: 10,
-    gap: 20, // Add gap between cards
+    gap: 20,
   },
   resetButton: {
     alignItems: 'center',

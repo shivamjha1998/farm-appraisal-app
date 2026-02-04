@@ -7,7 +7,6 @@ const STORAGE_KEY = '@agrivalue_history';
 const MAX_HISTORY_ITEMS = 50;
 
 // 1. Use Directory object instead of a raw string
-// (Assuming you have a library/wrapper that provides these classes, keeping your syntax)
 const historyDir = new Directory(Paths.document, 'history');
 
 const ensureDirExists = async () => {
@@ -17,7 +16,7 @@ const ensureDirExists = async () => {
     }
 };
 
-// CHANGED: Returns Promise<string> (the ID of the saved item)
+// Returns Promise<string> (the ID of the saved item)
 export const saveToHistory = async (imageUri: string, result: AnalysisResult): Promise<string> => {
     try {
         let savedImageUri = imageUri;
@@ -67,7 +66,7 @@ export const getHistory = async (): Promise<HistoryItem[]> => {
     }
 };
 
-// NEW FUNCTION: Updates a specific history item
+// Updates a specific history item
 export const updateHistoryItem = async (id: string, newResult: AnalysisResult): Promise<void> => {
     try {
         const currentHistory = await getHistory();

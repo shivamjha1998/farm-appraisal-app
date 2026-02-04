@@ -120,7 +120,7 @@ const styles = StyleSheet.create({
     card: {
         flexDirection: 'row',
         alignItems: 'center',
-        ...NEO_STYLE.container, // Border radius 8, border width 3, border color black
+        ...NEO_STYLE.container,
         padding: 10,
         marginBottom: 15,
         ...NEO_STYLE.shadow,

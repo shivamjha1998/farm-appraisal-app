@@ -6,7 +6,7 @@ import { COLORS, NEO_STYLE } from '../theme';
 
 interface IdentificationCardProps {
     result: AnalysisResult;
-    onEdit?: () => void; // Optional prop
+    onEdit?: () => void;
 }
 
 export const IdentificationCard: React.FC<IdentificationCardProps> = ({ result, onEdit }) => {

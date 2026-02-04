@@ -42,3 +42,6 @@ yarn-error.*
 
 # Android builds
 *.apk
+
+# iOS builds
+*.ipa
