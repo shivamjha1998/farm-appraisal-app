@@ -2,4 +2,4 @@
 // For iOS Simulator, localhost usually works.
 // Using detected local IP for physical device connectivity
 // export const API_URL = 'http://192.168.123.23:8000';
-export const API_URL = 'https://7d21-2400-4151-7402-e410-285b-7e2c-c1ee-68d7.ngrok-free.app';
+export const API_URL = 'https://a37d-2400-4151-7402-e410-bd3d-c9b0-3409-9401.ngrok-free.app';
